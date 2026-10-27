@@ -3,37 +3,588 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Retained</title>
-<meta name="description" content="Retained helps you find lost things, leave with a clear head and get reminders that really ring.">
+<title>Retained: find lost things, leave with a clear head</title>
+<meta name="description" content="Retained keeps track of where you left your things, nudges you when you leave a place, and rings for the reminders that matter. Nothing forgotten. Nothing lost.">
+<meta name="theme-color" content="#FBF7F1">
+<meta property="og:title" content="Retained: nothing forgotten, nothing lost">
+<meta property="og:description" content="Find lost things, get a nudge when you leave a place, and set reminders that really ring.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://retainedai458-dev.github.io/">
+<meta property="og:image" content="https://retainedai458-dev.github.io/logo-512.png">
+<link rel="icon" type="image/png" href="logo-192.png">
+<link rel="apple-touch-icon" href="logo-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #fffaf5; --ink: #2a2230; --muted: #6b6275; --accent: #e8590c; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #17131c; --ink: #f4eef8; --muted: #b4aabf; --accent: #ff8a4c; }
+  :root {
+    --bg: #FBF7F1; --surface: #FFFFFF; --hairline: #EBE4D9;
+    --ink: #22201C; --ink2: #4A4642; --muted: #615D59; --faint: #A39E98;
+    --blue: #0075DE; --blue-d: #005BAB; --blue-t: #E3EFFC;
+    --orange: #DD5B00; --orange-t: #FFEBDC;
+    --teal: #2A9D99; --teal-t: #DDF3F1;
+    --green: #1AAE39; --green-t: #E2F5E6;
+    --pink: #FF64C8; --pink-t: #FFE8F4;
+    --sky: #62AEF0; --purple: #391C57; --purple-t: #EEE7F8;
+    --yellow-t: #FFF3CC; --field: #F5F2EC;
+    --shadow: 0 10px 30px rgba(58,42,20,.10);
+    --shadow-lg: 0 24px 60px rgba(58,42,20,.20);
   }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.6; }
-  main { max-width: 640px; margin: 0 auto; padding: 56px 16px; }
-  h1 { font-size: 2.2rem; margin: 0 0 8px; color: var(--accent); }
-  p.lead { font-size: 1.15rem; margin: 0 0 28px; }
-  ul { padding-left: 20px; }
-  li { margin-bottom: 8px; }
-  a { color: var(--accent); }
-  footer { margin-top: 40px; color: var(--muted); font-size: 0.9rem; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17140F; --surface: #221E18; --hairline: #35302A;
+      --ink: #F6F1EA; --ink2: #D6CEC4; --muted: #A9A196; --faint: #7C746A;
+      --blue: #4DA3FF; --blue-d: #7DBAFF; --blue-t: #15283D;
+      --orange: #FF8A3D; --orange-t: #3A2414;
+      --teal: #4CC7C2; --teal-t: #12302F;
+      --green: #4BD36A; --green-t: #14301B;
+      --pink: #FF8AD6; --pink-t: #3A1B31;
+      --sky: #7DBAFF; --purple: #B79BE0; --purple-t: #271A3A;
+      --yellow-t: #3A3114; --field: #2B2620;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --shadow-lg: 0 24px 60px rgba(0,0,0,.5);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  img, svg { max-width: 100%; display: block; }
+  a { color: var(--blue); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  section { padding: 72px 0; }
+  h1, h2, h3 { line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; }
+  .eyebrow { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); background: var(--blue-t); padding: 6px 12px; border-radius: 999px; margin-bottom: 14px; }
+  .lead { font-size: 1.12rem; color: var(--ink2); max-width: 620px; }
+  .center { text-align: center; }
+  .center .lead { margin-left: auto; margin-right: auto; }
+
+  nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--hairline); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+  .brand img { width: 36px; height: 36px; border-radius: 10px; }
+  .navlinks { display: flex; gap: 22px; align-items: center; }
+  .navlinks a { color: var(--ink2); text-decoration: none; font-weight: 500; font-size: .95rem; }
+  .navlinks a:hover { color: var(--blue); }
+  .navlinks a.btn-primary, .navlinks a.btn-primary:hover { color: #fff; }
+  @media (max-width: 760px) { .navlinks .hide-m { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: transform .15s ease; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 22px rgba(0,117,222,.30); }
+  .btn-primary:hover { background: var(--blue-d); }
+  .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--hairline); }
+  .btn-sm { padding: 10px 18px; font-size: .92rem; }
+
+  /* Hero */
+  .hero { padding: 56px 0 40px; overflow: hidden; }
+  .hero .grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; }
+  .hero h1 { font-size: clamp(2.3rem, 6.2vw, 4rem); font-weight: 800; }
+  .hero h1 span { color: var(--blue); }
+  .hero .lead { margin: 18px 0 28px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .note { margin-top: 14px; color: var(--muted); font-size: .9rem; }
+  @media (max-width: 860px) { .hero .grid { grid-template-columns: 1fr; } .hero-art { order: -1; } }
+
+  .hero-art { position: relative; display: grid; place-items: center; min-height: 560px; }
+  .blob { position: absolute; border-radius: 50%; }
+  .b1 { width: 330px; height: 330px; background: var(--blue-t); top: 30px; left: 10px; }
+  .b2 { width: 200px; height: 200px; background: var(--orange-t); bottom: 20px; right: 0; }
+  .b3 { width: 120px; height: 120px; background: var(--pink-t); top: 70px; right: 24px; }
+
+  /* Phone frame and app mock screens */
+  .phone { position: relative; width: 272px; height: 540px; background: #1c1a17; border-radius: 40px; padding: 10px; box-shadow: var(--shadow-lg); }
+  .phone.float { animation: float 6s ease-in-out infinite; }
+  .screen { width: 100%; height: 100%; border-radius: 31px; background: #FBF7F1; color: #22201C; position: relative; overflow: hidden; display: flex; flex-direction: column; font-size: 12px; }
+  .cam { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: #1c1a17; border-radius: 50%; z-index: 3; }
+  .mock-h { padding: 34px 16px 6px; }
+  .mock-h b { display: block; font-size: 19px; font-weight: 800; }
+  .mock-h small { color: #615D59; font-size: 11px; }
+  .search { margin: 8px 14px 10px; background: #F1EDE6; border-radius: 10px; padding: 8px 12px; color: #A39E98; font-size: 11.5px; display: flex; gap: 8px; align-items: center; }
+  .vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px; }
+  .vcard { background: #fff; border: 1px solid #EBE4D9; border-radius: 14px; overflow: hidden; }
+  .vtile { height: 74px; display: grid; place-items: center; }
+  .vcard p { margin: 0; padding: 7px 10px 9px; font-size: 11.5px; line-height: 1.3; }
+  .vcard p b { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+  .vcard p b i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .vcard p span { color: #615D59; font-size: 10.5px; }
+  .tabbar { margin-top: auto; height: 58px; background: #fff; border-top: 1px solid #EBE4D9; display: flex; justify-content: space-around; align-items: center; position: relative; }
+  .tab { text-align: center; font-size: 10px; color: #A39E98; display: grid; gap: 2px; justify-items: center; }
+  .tab.on { color: #0075DE; font-weight: 700; }
+  .fab { position: absolute; left: 50%; top: -60px; transform: translateX(-50%); width: 46px; height: 46px; border-radius: 50%; background: #0075DE; display: grid; place-items: center; box-shadow: 0 8px 18px rgba(0,117,222,.4); }
+  .toast { position: absolute; left: -30px; top: 56px; width: 262px; background: var(--surface); color: var(--ink); border-radius: 18px; box-shadow: var(--shadow-lg); padding: 12px 14px; z-index: 4; animation: float 7s ease-in-out infinite; animation-delay: -2s; border: 1px solid var(--hairline); }
+  .toast .top { display: flex; align-items: center; gap: 8px; font-size: .72rem; color: var(--muted); margin-bottom: 6px; }
+  .toast .top img { width: 18px; height: 18px; border-radius: 5px; }
+  .toast b { display: block; font-size: .92rem; }
+  .toast span { font-size: .82rem; color: var(--ink2); }
+  @media (max-width: 480px) { .toast { left: -4px; width: 236px; } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @media (prefers-reduced-motion: reduce) { .phone.float, .toast { animation: none; } html { scroll-behavior: auto; } }
+
+  .strip { background: var(--surface); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 30px 0; }
+  .strip .items { display: flex; flex-wrap: wrap; gap: 10px 28px; justify-content: center; font-size: 1.08rem; font-weight: 600; color: var(--ink2); }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 44px; }
+  @media (max-width: 860px) { .features { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 24px; padding: 28px; box-shadow: var(--shadow); }
+  .card h3 { font-size: 1.3rem; margin: 18px 0 8px; }
+  .card p { margin: 0; color: var(--ink2); }
+  .art { height: 150px; border-radius: 18px; display: grid; place-items: center; }
+  .art.blue { background: var(--blue-t); } .art.orange { background: var(--orange-t); } .art.teal { background: var(--teal-t); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .split.rev .text { order: 2; }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; } .split.rev .text { order: 0; } }
+  .ticks { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 12px; }
+  .ticks li { display: flex; gap: 12px; align-items: flex-start; color: var(--ink2); }
+  .ticks svg { flex: none; margin-top: 3px; }
+  .stage { display: grid; place-items: center; padding: 36px 16px; border-radius: 32px; position: relative; }
+  .st-blue { background: var(--blue-t); } .st-orange { background: var(--orange-t); } .st-teal { background: var(--teal-t); }
+  .stage .phone { height: 500px; }
+  .stage .dual { display: flex; gap: 18px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+
+  /* Exit steps */
+  .xsteps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 30px; }
+  @media (max-width: 420px) { .xsteps { grid-template-columns: 1fr; } }
+  .xs { background: var(--surface); border: 1px solid var(--hairline); border-radius: 18px; padding: 16px; }
+  .xs i { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 10px; font-style: normal; }
+  .xs b { display: block; font-size: .95rem; }
+  .xs span { font-size: .85rem; color: var(--ink2); }
+
+  /* Hub cards inside mock */
+  .lead-m { padding: 6px 16px 10px; color: #4A4642; font-size: 11.5px; font-weight: 500; }
+  .hub { display: grid; gap: 10px; padding: 0 14px; }
+  .hcard { background: #fff; border: 1px solid #EBE4D9; border-radius: 16px; padding: 12px; display: flex; gap: 12px; align-items: center; }
+  .hcard .hi { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; }
+  .hcard b { display: block; font-size: 13px; }
+  .hcard span { font-size: 10.5px; color: #615D59; }
+  .stage .hcard { padding: 9px; gap: 9px; }
+  .stage .hcard .hi { width: 36px; height: 36px; border-radius: 11px; }
+  .stage .hcard .hi svg { width: 20px; height: 20px; }
+  .stage .hcard b { font-size: 12px; }
+  .stage .hcard span { font-size: 10px; }
+  .stage .hub { gap: 8px; }
+  .hcard em { display: inline-block; font-style: normal; font-size: 9.5px; font-weight: 700; margin-top: 3px; padding: 2px 7px; border-radius: 99px; }
+
+  /* Checklist mock */
+  .ck-h { padding: 38px 16px 8px; }
+  .ck-h b { display: block; font-size: 18px; font-weight: 800; }
+  .ck-h small { color: #615D59; font-size: 11px; }
+  .ck-bar { margin: 8px 16px 10px; height: 8px; background: #EBE4D9; border-radius: 99px; overflow: hidden; }
+  .ck-bar i { display: block; height: 100%; width: 66%; background: #0075DE; border-radius: 99px; }
+  .ck-p { margin: 0 16px 8px; font-size: 10.5px; color: #615D59; font-weight: 600; }
+  .ck-i { margin: 0 14px 8px; background: #fff; border: 1px solid #EBE4D9; border-radius: 14px; padding: 11px 12px; display: flex; gap: 10px; align-items: center; font-size: 12.5px; font-weight: 600; }
+  .ck-i .box { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #C9C2B8; display: grid; place-items: center; flex: none; }
+  .ck-i.done .box { background: #1AAE39; border-color: #1AAE39; }
+  .ck-i.done { color: #A39E98; text-decoration: line-through; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px; }
+  .chips span { background: #F1EDE6; border-radius: 99px; padding: 5px 10px; font-size: 10.5px; font-weight: 600; }
+
+  /* Call alarm mock */
+  .call { background: linear-gradient(180deg, #1B2A57 0%, #213183 55%, #391C57 100%); color: #fff; align-items: center; padding: 38px 20px 26px; }
+  .call .tag { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .75; margin-top: 10px; }
+  .call .av { width: 84px; height: 84px; border-radius: 50%; margin-top: 22px; box-shadow: 0 0 0 10px rgba(255,255,255,.08), 0 0 0 22px rgba(255,255,255,.05); overflow: hidden; }
+  .call .av img { width: 100%; height: 100%; }
+  .call .cn { font-size: 19px; font-weight: 700; margin-top: 34px; text-align: center; }
+  .call .cs { font-size: 12px; opacity: .8; margin-top: 4px; }
+  .call .row2 { display: flex; gap: 40px; margin-top: auto; }
+  .call .rd { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto; }
+  .call .rl { text-align: center; font-size: 10.5px; margin-top: 6px; opacity: .9; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 44px; counter-reset: s; }
+  @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+  .step { background: var(--surface); border: 1px solid var(--hairline); border-radius: 24px; padding: 26px; position: relative; }
+  .step::before { counter-increment: s; content: counter(s); position: absolute; top: -16px; left: 24px; width: 36px; height: 36px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 800; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,117,222,.35); }
+  .step h3 { margin: 6px 0 8px; font-size: 1.15rem; }
+  .step p { margin: 0; color: var(--ink2); }
+
+  .band { background: var(--purple); color: #fff; border-radius: 32px; padding: 56px 32px; }
+  @media (prefers-color-scheme: dark) { .band { background: #271A3A; } }
+  .band h2 { color: #fff; }
+  .band .lead { color: rgba(255,255,255,.82); }
+  .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 34px; }
+  @media (max-width: 860px) { .pgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .pgrid { grid-template-columns: 1fr; } }
+  .pitem { background: rgba(255,255,255,.08); border-radius: 18px; padding: 20px; }
+  .pitem b { display: block; margin: 10px 0 4px; }
+  .pitem span { font-size: .9rem; color: rgba(255,255,255,.8); }
+
+  .faq { max-width: 760px; margin: 36px auto 0; display: grid; gap: 12px; }
+  details { background: var(--surface); border: 1px solid var(--hairline); border-radius: 18px; padding: 4px 20px; }
+  summary { cursor: pointer; font-weight: 700; padding: 16px 0; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 1.4rem; color: var(--blue); flex: none; }
+  details[open] summary::after { content: "\2212"; }
+  details p { margin: 0 0 16px; color: var(--ink2); }
+
+  .final { text-align: center; background: linear-gradient(135deg, var(--blue-t), var(--pink-t)); border-radius: 32px; padding: 64px 24px; }
+  .final img { width: 84px; height: 84px; border-radius: 22px; margin: 0 auto 18px; box-shadow: var(--shadow); }
+  .final h2 { margin-bottom: 12px; }
+  .final .lead { margin: 0 auto 28px; }
+  .final .cta { justify-content: center; }
+
+  footer { padding: 40px 0 56px; color: var(--muted); font-size: .92rem; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; align-items: center; }
+  .flinks a { margin-right: 18px; }
+  .disclaimer { width: 100%; font-size: .85rem; margin: 0; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
 </style>
 </head>
 <body>
-<main>
-  <h1>Retained</h1>
-  <p class="lead">Find lost things, leave with a clear head, get reminders that really ring.</p>
-  <ul>
-    <li><strong>Find anything in seconds.</strong> Save a photo and an exact location pin for the things you set down.</li>
-    <li><strong>Leave with a clear head.</strong> Exit reminders for door locked, stove off, windows shut, even with your phone locked.</li>
-    <li><strong>Reminders that really ring.</strong> Notifications or call style alarms that work without internet.</li>
-  </ul>
-  <p>Retained is a reminder tool and does not give medical advice.</p>
-  <footer>
-    <a href="https://retainedai458-dev.github.io/retained-privacy-policy/">Privacy policy</a>
-    &middot; Contact: <a href="mailto:retained.ai458@gmail.com">retained.ai458@gmail.com</a>
-  </footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.6 8 12 8 12s8-6.4 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" fill="currentColor"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><path d="M14.5 3a6.5 6.5 0 00-6.1 8.8L2 18.2V22h4v-2h2v-2h2l2.200-2.200A6.500 6.500 0 1014.500 3zm2 4.500a2 2 0 110-4 2 2 0 010 4z" fill="currentColor"/></symbol>
+    <symbol id="i-watch" viewBox="0 0 24 24"><path d="M8 2h8l1 4H7l1-4zm-1 16h10l-1 4H8l-1-4zM12 6a6 6 0 100 12 6 6 0 000-12zm.8 5.800l2.500 1.500-.6 1-3.200-1.900V9h1.300v2.800z" fill="currentColor"/></symbol>
+    <symbol id="i-head" viewBox="0 0 24 24"><path d="M12 3a9 9 0 00-9 9v6a3 3 0 003 3h1v-8H5v-1a7 7 0 0114 0v1h-2v8h1a3 3 0 003-3v-6a9 9 0 00-9-9z" fill="currentColor"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm7 1.500V9h5.500L13 3.500zM8 13h8v1.500H8V13zm0 3.500h8V18H8v-1.500z" fill="currentColor"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" fill="currentColor"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6v-5c0-3.100-1.600-5.600-4.500-6.300V4a1.500 1.500 0 00-3 0v.7C7.600 5.400 6 7.900 6 11v5l-2 2v1h16v-1l-2-2z" fill="currentColor"/></symbol>
+    <symbol id="i-cog" viewBox="0 0 24 24"><path d="M19.400 13a7.600 7.600 0 000-2l2.100-1.600-2-3.500-2.500 1a7.700 7.700 0 00-1.700-1L15 3h-4l-.4 2.900a7.700 7.700 0 00-1.700 1l-2.500-1-2 3.500L6.600 11a7.600 7.600 0 000 2l-2.100 1.600 2 3.500 2.500-1c.5.400 1.100.700 1.700 1L11 21h4l.4-2.900c.6-.3 1.200-.6 1.700-1l2.500 1 2-3.500L19.400 13zM13 15.500a3.500 3.500 0 110-7 3.500 3.500 0 010 7z" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.500" fill="none" stroke="currentColor" stroke-width="2.200"/><path d="M16 16l4.500 4.500" stroke="currentColor" stroke-width="2.200" stroke-linecap="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z" fill="currentColor"/></symbol>
+    <symbol id="i-med" viewBox="0 0 24 24"><path d="M10 3h4v4h4v4h-4v4h-4v-4H6V7h4V3zm-7 15h18v3H3v-3z" fill="currentColor"/></symbol>
+    <symbol id="i-alarm" viewBox="0 0 24 24"><path d="M12 6a8 8 0 100 16 8 8 0 000-16zm1 4v4.500l3 1.800-.7 1.100L11.500 15V10H13zM3.500 7.500l3-3 1.200 1.400-3 3-1.200-1.400zm17 0l-1.200 1.400-3-3 1.200-1.400 3 3z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Retained home">
+      <img src="logo-192.png" alt="" width="36" height="36">
+      Retained
+    </a>
+    <div class="navlinks">
+      <a class="hide-m" href="#vault">Vault</a>
+      <a class="hide-m" href="#exit">Exit reminders</a>
+      <a class="hide-m" href="#reminders">Reminders</a>
+      <a class="hide-m" href="#privacy">Privacy</a>
+      <a class="hide-m" href="#faq">FAQ</a>
+      <a class="btn btn-primary btn-sm" href="https://play.google.com/store/apps/details?id=com.retained.app">Get the app</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap grid">
+    <div>
+      <span class="eyebrow">Your pocket memory</span>
+      <h1>Nothing forgotten.<br><span>Nothing lost.</span></h1>
+      <p class="lead">Did I lock the door? Where did I put my keys? Retained remembers where you left your things, nudges you when you leave a place, and rings when a reminder matters.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.retained.app">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M5 3l15 9-15 9z"/></svg>
+          Get it on Google Play
+        </a>
+        <a class="btn btn-ghost" href="#vault">See what it does</a>
+      </div>
+      <p class="note">Free to download. Made for Android.</p>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+      <div class="phone float">
+        <div class="screen">
+          <div class="cam"></div>
+          <div class="mock-h"><b>My Vault</b><small>4 items</small></div>
+          <div class="search"><svg width="14" height="14"><use href="#i-search"/></svg>Search your things...</div>
+          <div class="vgrid">
+            <div class="vcard"><div class="vtile" style="background:#FFE8F4;color:#FF64C8"><svg width="34" height="34"><use href="#i-key"/></svg></div><p><b><i style="background:#FF64C8"></i>House Keys</b><span>Entryway</span></p></div>
+            <div class="vcard"><div class="vtile" style="background:#E2F5E6;color:#1AAE39"><svg width="34" height="34"><use href="#i-watch"/></svg></div><p><b><i style="background:#1AAE39"></i>My Watch</b><span>Bedroom</span></p></div>
+            <div class="vcard"><div class="vtile" style="background:#FFE8F4;color:#FF64C8"><svg width="34" height="34"><use href="#i-head"/></svg></div><p><b><i style="background:#FF64C8"></i>Headphones</b><span>Living Room</span></p></div>
+            <div class="vcard"><div class="vtile" style="background:#E6F2FD;color:#62AEF0"><svg width="34" height="34"><use href="#i-doc"/></svg></div><p><b><i style="background:#62AEF0"></i>Passport</b><span>Office</span></p></div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><svg width="20" height="20"><use href="#i-folder"/></svg>Vault</div>
+            <div class="tab"><svg width="20" height="20"><use href="#i-bell"/></svg>Reminders</div>
+            <div class="tab"><svg width="20" height="20"><use href="#i-cog"/></svg>Settings</div>
+            <div class="fab"><svg width="22" height="22" style="color:#fff"><use href="#i-plus"/></svg></div>
+          </div>
+        </div>
+      </div>
+      <div class="toast">
+        <div class="top"><img src="logo-192.png" alt="">Retained · Exit reminders · now</div>
+        <b>You're heading out from Home.</b>
+        <span>Keys, wallet, stove off.</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="wrap"><div class="items">
+    <span>Where are my keys?</span><span>Did I lock the door?</span><span>Did I turn the stove off?</span><span>Did I take it already?</span>
+  </div></div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">What Retained does</span>
+      <h2>Three small jobs, done really well</h2>
+      <p class="lead">Forgetting is not carelessness. Your mind is busy holding a hundred small things. Retained holds the few that matter.</p>
+    </div>
+    <div class="features">
+      <article class="card">
+        <div class="art blue">
+          <svg width="150" height="120" viewBox="0 0 150 120" role="img" aria-label="Location pin">
+            <circle cx="75" cy="98" r="30" fill="none" stroke="#0075DE" stroke-opacity=".18" stroke-width="3"/>
+            <circle cx="75" cy="98" r="18" fill="none" stroke="#0075DE" stroke-opacity=".35" stroke-width="3"/>
+            <ellipse cx="75" cy="98" rx="9" ry="4" fill="#0075DE" fill-opacity=".5"/>
+            <path d="M75 12c-17 0-30 13-30 30 0 22 30 50 30 50s30-28 30-50c0-17-13-30-30-30z" fill="#0075DE"/>
+            <circle cx="75" cy="42" r="12" fill="#fff"/>
+          </svg>
+        </div>
+        <h3>Vault: find your things</h3>
+        <p>Save a photo and the exact spot where you left something. When you wonder where it is, the answer is one search away.</p>
+      </article>
+      <article class="card">
+        <div class="art orange">
+          <svg width="150" height="120" viewBox="0 0 150 120" role="img" aria-label="Door with an arrow">
+            <rect x="34" y="12" width="56" height="96" rx="6" fill="#DD5B00"/>
+            <rect x="42" y="20" width="40" height="80" rx="3" fill="#FFB27A"/>
+            <circle cx="74" cy="62" r="4" fill="#DD5B00"/>
+            <path d="M96 62h34m0 0l-11-11m11 11l-11 11" fill="none" stroke="#22201C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Exit reminders: a nudge as you leave</h3>
+        <p>Save a place and a short checklist. The moment you walk away, you get a notification with what to check before you go.</p>
+      </article>
+      <article class="card">
+        <div class="art teal">
+          <svg width="150" height="120" viewBox="0 0 150 120" role="img" aria-label="Ringing bell">
+            <path d="M75 14c-18 0-30 14-30 32v20l-10 14h80l-10-14V46c0-18-12-32-30-32z" fill="#2A9D99"/>
+            <circle cx="75" cy="98" r="9" fill="#2A9D99"/>
+            <path d="M28 40c-6 8-6 20 0 28M122 40c6 8 6 20 0 28M16 32c-10 14-10 34 0 48M134 32c10 14 10 34 0 48" fill="none" stroke="#2A9D99" stroke-opacity=".5" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Reminders: Medicine and Everyday</h3>
+        <p>Never miss a dose, a bill or a call. Choose a simple notification, or a call style alarm that lights up your lock screen and reads the reminder aloud.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- VAULT -->
+<section id="vault">
+  <div class="wrap split">
+    <div class="text">
+      <span class="eyebrow">Vault</span>
+      <h2>Never wonder where you left it</h2>
+      <p class="lead">Set something down, tap the plus, and Retained saves where it is. Next time you look, it is right there.</p>
+      <ul class="ticks">
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>A photo, the type of item (keys, wallet, car, passport, headphones and more) and an optional note</li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>The exact spot saved on a map, plus a room tag like Kitchen, Bedroom or Entryway</li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>Search your things, and tap Directions to be guided back to it</li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>Moved it? One tap on "I moved it" saves the new spot and keeps the earlier ones</li>
+      </ul>
+    </div>
+    <div class="stage st-blue" aria-hidden="true">
+      <div class="phone">
+        <div class="screen">
+          <div class="cam"></div>
+          <div class="mock-h" style="padding-top:36px"><b>House Keys</b><small>Seen 2 hours ago</small></div>
+          <div style="margin:8px 14px;height:140px;border-radius:16px;background:linear-gradient(135deg,#FFE8F4,#E3EFFC);display:grid;place-items:center;color:#FF64C8"><svg width="64" height="64"><use href="#i-key"/></svg></div>
+          <div class="chips" style="margin-top:6px"><span>Keys</span><span>Entryway</span></div>
+          <div style="margin:12px 14px 0;background:#fff;border:1px solid #EBE4D9;border-radius:14px;padding:10px 12px;font-size:11.5px">
+            <b style="display:flex;gap:6px;align-items:center"><svg width="14" height="14" style="color:#0075DE"><use href="#i-pin"/></svg>Last spot saved</b>
+            <span style="color:#615D59">Entryway · near the front door</span>
+          </div>
+          <div style="display:flex;gap:8px;margin:12px 14px 0">
+            <div style="flex:1;background:#0075DE;color:#fff;border-radius:99px;padding:10px;text-align:center;font-weight:700;font-size:12px">I moved it</div>
+            <div style="flex:1;background:#DDF3F1;color:#2A9D99;border-radius:99px;padding:10px;text-align:center;font-weight:700;font-size:12px">Directions</div>
+          </div>
+          <div style="margin:14px 16px 0;font-size:11px;font-weight:700;color:#4A4642">Earlier spots</div>
+          <div style="margin:6px 16px 0;font-size:11px;color:#615D59">Yesterday · Kitchen<br>Mon · Living Room</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXIT REMINDERS -->
+<section id="exit">
+  <div class="wrap split rev">
+    <div class="text">
+      <span class="eyebrow" style="background:var(--orange-t);color:var(--orange)">Exit reminders</span>
+      <h2>No more turning back halfway down the street</h2>
+      <p class="lead">Pick a place, add what you care about, and Retained watches for the moment you leave. You get a notification with your checklist, even when the app is closed and the phone is locked.</p>
+      <div class="xsteps">
+        <div class="xs"><i style="background:var(--blue-t);color:var(--blue)"><svg width="20" height="20"><use href="#i-pin"/></svg></i><b>Pick a place</b><span>Tap the map and name it: Home, Office, Gym.</span></div>
+        <div class="xs"><i style="background:var(--teal-t);color:var(--teal)"><svg width="20" height="20"><use href="#i-home"/></svg></i><b>Set the distance</b><span>Choose how far you walk before it counts, with the walking time shown.</span></div>
+        <div class="xs"><i style="background:var(--pink-t);color:var(--pink)"><svg width="20" height="20"><use href="#i-tick"/></svg></i><b>Add what you care about</b><span>Keys, wallet, stove off. Quick add or write your own.</span></div>
+        <div class="xs"><i style="background:var(--orange-t);color:var(--orange)"><svg width="20" height="20"><use href="#i-bell"/></svg></i><b>Get a nudge</b><span>A notification as you leave. Tap it to tick things off.</span></div>
+      </div>
+      <ul class="ticks">
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>It is a notification, not a call, so it never interrupts like an alarm</li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>Built to avoid false alerts while you are still at home</li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>Can come through Do Not Disturb if you allow it</li>
+      </ul>
+    </div>
+    <div class="stage st-orange" aria-hidden="true">
+      <div class="dual">
+        <div style="width:250px;align-self:flex-start;margin-top:8px">
+          <div class="toast" style="position:relative;left:0;top:0;width:100%;animation:none">
+            <div class="top"><img src="logo-192.png" alt="">Retained · Exit reminders · now</div>
+            <b>You're heading out from Home.</b>
+            <span>Keys, wallet, stove off.</span>
+          </div>
+          <div style="margin-top:12px;background:var(--surface);border-radius:16px;padding:12px 14px;font-size:.8rem;color:var(--ink2);border:1px solid var(--hairline)">Shown on your lock screen too, so you see it as you step out.</div>
+        </div>
+        <div class="phone" style="width:240px;height:470px">
+          <div class="screen">
+            <div class="cam"></div>
+            <div class="ck-h"><b>Home</b><small>Quick check before you're on your way.</small></div>
+            <div class="ck-bar"><i></i></div>
+            <p class="ck-p">2 of 3 done</p>
+            <div class="ck-i done"><span class="box"><svg width="12" height="12" style="color:#fff"><use href="#i-tick"/></svg></span>Keys</div>
+            <div class="ck-i done"><span class="box"><svg width="12" height="12" style="color:#fff"><use href="#i-tick"/></svg></span>Wallet</div>
+            <div class="ck-i"><span class="box"></span>Stove off</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REMINDERS -->
+<section id="reminders">
+  <div class="wrap split">
+    <div class="text">
+      <span class="eyebrow" style="background:var(--teal-t);color:var(--teal)">Reminders</span>
+      <h2>Little nudges for the things that matter</h2>
+      <p class="lead">One place for Medicine and Everyday reminders. Choose how each one arrives: a notification with Done, Snooze and Skip buttons, or a call style alarm that shows on your lock screen and reads the reminder aloud.</p>
+      <ul class="ticks">
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg><span><b>Medicine:</b> never miss a dose. Put several medicines in one alarm and tick each one off.</span></li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg><span><b>Everyday:</b> bills, calls, birthdays, anything, any time.</span></li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>Answer straight from the alarm, no need to open the app</li>
+        <li><svg width="22" height="22" style="color:#1AAE39"><use href="#i-tick"/></svg>Works without internet and keeps a simple history</li>
+      </ul>
+    </div>
+    <div class="stage st-teal" aria-hidden="true">
+      <div class="dual">
+        <div class="phone" style="width:214px;height:470px">
+          <div class="screen">
+            <div class="cam"></div>
+            <div class="mock-h" style="padding-top:36px"><b>Reminders</b></div>
+            <div class="lead-m">Little nudges for the things that matter.</div>
+            <div class="hub">
+              <div class="hcard"><span class="hi" style="background:#E3EFFC;color:#0075DE"><svg width="24" height="24"><use href="#i-home"/></svg></span><div><b>Exit reminders</b><span>A nudge when you leave a place</span><br><em style="background:#E2F5E6;color:#1AAE39">2 places on</em></div></div>
+              <div class="hcard"><span class="hi" style="background:#DDF3F1;color:#2A9D99"><svg width="24" height="24"><use href="#i-med"/></svg></span><div><b>Medicine</b><span>Never miss a dose</span><br><em style="background:#E2F5E6;color:#1AAE39">1 of 3 done</em></div></div>
+              <div class="hcard"><span class="hi" style="background:#FFEBDC;color:#DD5B00"><svg width="24" height="24"><use href="#i-alarm"/></svg></span><div><b>Everyday</b><span>Anything, any time</span><br><em style="background:#E3EFFC;color:#0075DE">Next: Pay bill</em></div></div>
+            </div>
+            <div class="tabbar">
+              <div class="tab"><svg width="20" height="20"><use href="#i-folder"/></svg>Vault</div>
+              <div class="tab on"><svg width="20" height="20"><use href="#i-bell"/></svg>Reminders</div>
+              <div class="tab"><svg width="20" height="20"><use href="#i-cog"/></svg>Settings</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone" style="width:214px;height:470px">
+          <div class="screen call">
+            <div class="cam"></div>
+            <div class="tag">Retained reminder</div>
+            <div class="av"><img src="logo-192.png" alt=""></div>
+            <div class="cn">Morning medicine</div>
+            <div class="cs">2 medicines</div>
+            <div class="row2">
+              <div><div class="rd" style="background:#E03E3E"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></div><div class="rl">Snooze</div></div>
+              <div><div class="rd" style="background:#1AAE39"><svg width="22" height="22" style="color:#fff"><use href="#i-tick"/></svg></div><div class="rl">Answer</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">How it works</span>
+      <h2>Set it up once, then forget about it</h2>
+      <p class="lead">Retained does the remembering so you do not have to.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Save it</h3><p>Photograph the thing you put down, pick a place you leave often, or add a reminder.</p></div>
+      <div class="step"><h3>Let Retained watch</h3><p>It works quietly in the background. No daily checking, nothing extra to open.</p></div>
+      <div class="step"><h3>Get nudged at the right moment</h3><p>When you leave, or when the time comes, Retained lets you know. Tap Done and carry on.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section id="privacy">
+  <div class="wrap">
+    <div class="band">
+      <div class="center">
+        <span class="eyebrow" style="background:rgba(255,255,255,.14);color:#fff">Private by design</span>
+        <h2>Your memory stays yours</h2>
+        <p class="lead">Your location is used only for your own reminders. Your data is not sold, and it is not shared with other users.</p>
+      </div>
+      <div class="pgrid">
+        <div class="pitem"><svg width="26" height="26" style="color:#fff"><use href="#i-pin"/></svg><b>Location for you only</b><span>Used to remind you, never to follow you.</span></div>
+        <div class="pitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M12 1L3 5v6c0 5.500 3.800 10.700 9 12 5.200-1.300 9-6.500 9-12V5l-9-4z"/></svg><b>Not sold</b><span>We do not sell your personal data.</span></div>
+        <div class="pitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M12 4.500C7 4.500 2.700 7.600 1 12c1.700 4.400 6 7.500 11 7.500s9.300-3.100 11-7.500c-1.700-4.400-6-7.500-11-7.500zm0 12.500a5 5 0 110-10 5 5 0 010 10z"/></svg><b>Not shared with others</b><span>Your items and places are never shown to other users.</span></div>
+        <div class="pitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M6 19a2 2 0 002 2h8a2 2 0 002-2V7H6v12zM19 4h-3.500l-1-1h-5l-1 1H5v2h14V4z"/></svg><b>Delete anytime</b><span>Remove your account and everything in it from Settings.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">Questions</span>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Is an exit reminder a call?</summary><p>No. An exit reminder is a notification, shown as you leave a saved place with the checklist you wrote. Call style alarms are an option for Medicine and Everyday reminders only.</p></details>
+      <details><summary>Does it work when my phone is locked or the app is closed?</summary><p>Yes. Exit reminders and alarms are built to work with the app closed and the screen locked. For best results, allow the permissions Retained asks for and keep battery saving from stopping the app.</p></details>
+      <details><summary>Why does Retained ask for location?</summary><p>Only to tell when you leave a place you saved, and to pin where you left an item. It is used for your own reminders.</p></details>
+      <details><summary>Do I need internet?</summary><p>Reminders ring without internet and keep a history on your phone. You need to be online to sign in and to back up your data.</p></details>
+      <details><summary>Which phones does it support?</summary><p>Android phones. Some makers limit apps in the background, so Retained guides you through the few settings that keep reminders reliable.</p></details>
+      <details><summary>Can I delete my data?</summary><p>Yes. You can delete your account and everything in it any time from Settings inside the app.</p></details>
+      <details><summary>Is Retained medical advice?</summary><p>No. Retained is a reminder tool. It does not give medical advice, diagnose or treat anything. Always follow your doctor's instructions.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section>
+  <div class="wrap">
+    <div class="final">
+      <img src="logo-512.png" alt="Retained app icon" width="84" height="84">
+      <h2>Give your memory a hand</h2>
+      <p class="lead">Download Retained and let it hold the small things that matter.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.retained.app">Get it on Google Play</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><img src="logo-192.png" alt="" width="36" height="36">Retained</div>
+    <div class="flinks">
+      <a href="https://retainedai458-dev.github.io/retained-privacy-policy/">Privacy policy</a>
+      <a href="mailto:retained.ai458@gmail.com">retained.ai458@gmail.com</a>
+    </div>
+    <p class="disclaimer">Retained is a reminder tool and does not give medical advice. Google Play and the Google Play logo are trademarks of Google LLC.</p>
+  </div>
+</footer>
+
 </body>
 </html>
